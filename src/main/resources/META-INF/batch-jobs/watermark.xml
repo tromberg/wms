@@ -2,7 +2,6 @@
 <job id="watermark" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
     
     <step id="process">
-<!--       <batchlet ref="com.creaficiency.batch.WatermarkTask"> -->  
         <batchlet ref="WmTask">
         	<properties>
         		<property name="wmsDocId" value="#{jobParameters['wmsdocid']}" />

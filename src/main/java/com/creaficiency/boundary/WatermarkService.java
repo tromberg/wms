@@ -36,40 +36,64 @@ public class WatermarkService {
 		em = emf.createEntityManager();
 		utx.begin();
 		em.joinTransaction();
-		if (wmd == null) throw new NullPointerException();
-		wmd.validate();
 		
-		em.persist(wmd);
-		Long theId = wmd.getId();
-		
-		JobOperator jobOperator = BatchRuntime.getJobOperator();
-		Properties props = new Properties();
-		props.setProperty(PROP_DOCID, theId.toString());
-		jobOperator.start(JOB_WMS, props);
-		
-		utx.commit();
-		em.clear();
-		
-		return theId;
-		
+		try {
+			if (wmd == null) throw new NullPointerException();
+			wmd.validate();
+			
+			em.persist(wmd);
+			Long theId = wmd.getId();
+			LOGGER.info("Doc " + theId + " submitted.");
+			
+			JobOperator jobOperator = BatchRuntime.getJobOperator();
+			Properties props = new Properties();
+			props.setProperty(PROP_DOCID, theId.toString());
+			jobOperator.start(JOB_WMS, props);
+			
+			utx.commit();
+			em.clear();
+			
+			return theId;
+		}
+		catch (Exception ex) {
+			utx.rollback();
+			em.clear();
+			throw ex;
+		}
 	}
 	
 	public WatermarkDoc getWatermarkDocById(long id) throws Exception {
 		em = emf.createEntityManager();
+		
 		WatermarkDoc result = (WatermarkDoc) em.find(WatermarkDoc.class, id);
+		
 		em.clear();
 		return result;
 	}
 	
 	public void addWatermark(long id) throws Exception {
 		em = emf.createEntityManager();
-		LOGGER.info("addWatermark SVC " + this.toString() + "EM " + em.toString() + " Thread " + Thread.currentThread().getName());
 		utx.begin();
 		em.joinTransaction();
-		WatermarkDoc doc = em.find(WatermarkDoc.class, id);
-		doc.setWatermark(Integer.toString(doc.calcWatermarkCode()));
-		LOGGER.info("WATERMARK SET to " + doc.getWatermark());
-		utx.commit();
-		em.clear();
+		try {
+			WatermarkDoc doc = em.find(WatermarkDoc.class, id);
+			if (doc == null) {
+				LOGGER.severe("Doc " + id + " not found for watermarking");
+				utx.rollback();
+				em.clear();
+				return;
+			}
+			doc.setWatermark(Integer.toString(doc.calcWatermarkCode()));
+			
+			LOGGER.info("Doc " + id +" watermark set to " + doc.getWatermark());
+			
+			utx.commit();
+			em.clear();
+		}
+		catch (Exception ex) {
+			utx.rollback();
+			em.clear();
+			throw ex;
+		}
 	}
 }

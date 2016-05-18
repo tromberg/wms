@@ -45,7 +45,14 @@ public class ServiceTest extends TestCase {
         wms.submitDocForWatermark(null);   
     }
     
-    @Test(expected = ValidationException.class)
+    /**
+     * null author should not be allowed
+     * the expected exception is flexible, since embedded glassfish throws a ValidationException,
+     * but JBoss a RollbackException
+     * 
+     * @throws Exception
+     */
+    @Test(expected = Exception.class)
     public void null_author_not_allowed() throws Exception {
         WatermarkDoc doc = new WatermarkDoc("war and peace", null, DocType.BOOK, "History");
     	

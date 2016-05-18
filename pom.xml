@@ -59,6 +59,9 @@
 
         <profile>
             <id>arquillian-glassfish</id>
+            <activation>
+        		<activeByDefault>true</activeByDefault>
+    		</activation>
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
