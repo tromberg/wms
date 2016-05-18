@@ -13,6 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import com.creaficiency.entity.WatermarkDoc;
 
@@ -32,6 +34,7 @@ public class WatermarkService {
 	@Inject
 	UserTransaction utx;
 
+	
 	public long submitDocForWatermark(WatermarkDoc wmd) throws Exception {
 		Long theId;
 		
@@ -63,6 +66,13 @@ public class WatermarkService {
 		
 		return theId;
 	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return detached watermark doc, or null if it does not exist
+	 * @throws Exception
+	 */
 	
 	public WatermarkDoc getWatermarkDocById(long id) throws Exception {
 		em = emf.createEntityManager();
