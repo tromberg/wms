@@ -13,8 +13,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 import com.creaficiency.entity.WatermarkDoc;
 
