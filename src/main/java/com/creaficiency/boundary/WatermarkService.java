@@ -33,6 +33,8 @@ public class WatermarkService {
 	UserTransaction utx;
 
 	public long submitDocForWatermark(WatermarkDoc wmd) throws Exception {
+		Long theId;
+		
 		em = emf.createEntityManager();
 		utx.begin();
 		em.joinTransaction();
@@ -42,24 +44,26 @@ public class WatermarkService {
 			wmd.validate();
 			
 			em.persist(wmd);
-			Long theId = wmd.getId();
-			LOGGER.info("Doc " + theId + " submitted.");
-			
-			JobOperator jobOperator = BatchRuntime.getJobOperator();
-			Properties props = new Properties();
-			props.setProperty(PROP_DOCID, theId.toString());
-			jobOperator.start(JOB_WMS, props);
-			
+			theId = wmd.getId();
 			utx.commit();
-			em.clear();
 			
-			return theId;
+			
 		}
 		catch (Exception ex) {
 			utx.rollback();
 			em.clear();
 			throw ex;
 		}
+		
+		LOGGER.info("Doc " + theId + " submitted.");
+		JobOperator jobOperator = BatchRuntime.getJobOperator();
+		Properties props = new Properties();
+		props.setProperty(PROP_DOCID, theId.toString());
+		jobOperator.start(JOB_WMS, props);
+		
+		em.clear();
+		
+		return theId;
 	}
 	
 	public WatermarkDoc getWatermarkDocById(long id) throws Exception {
