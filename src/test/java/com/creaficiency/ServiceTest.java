@@ -34,6 +34,7 @@ public class ServiceTest extends TestCase {
         return ShrinkWrap.create(WebArchive.class, "test.war")
                 .addPackages(true, "com.creaficiency")
                 .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
+                .addAsResource("META-INF/batch-jobs/watermark.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
@@ -49,15 +50,21 @@ public class ServiceTest extends TestCase {
     @Test
     public void valid_book_can_be_submitted() throws Exception {
         title = UUID.randomUUID().toString();
-    	bookId = wms.submitDocForWatermark(new WatermarkDoc(title));
-        
-        LOGGER.info("\n\nThe Book Id: " + bookId + "\n\n");
+    	bookId = wms.submitDocForWatermark(new WatermarkDoc(title));        
     	Assert.assertTrue(bookId > 0);
     	
     	WatermarkDoc doc = wms.getWatermarkDocById(bookId);
     	Assert.assertNotNull(doc);
     	Assert.assertEquals(title, doc.getTitle());
-    
+    	
+    	int r = 10;
+    	while (--r >= 0 && doc.getWatermark() == null) {
+    		Thread.sleep(250);
+    		
+    		wms.getWatermarkDocById(bookId);
+    	}
+    	
+    	Assert.assertTrue("Timeout waiting for Watermark", r >= 0);
     }
     
     
