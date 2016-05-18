@@ -35,19 +35,17 @@ public class WatermarkService {
 	public long submitDocForWatermark(WatermarkDoc wmd) throws Exception {
 		Long theId;
 		
+		if (wmd == null) throw new NullPointerException();
+		wmd.validate();
+		
 		em = emf.createEntityManager();
 		utx.begin();
 		em.joinTransaction();
 		
 		try {
-			if (wmd == null) throw new NullPointerException();
-			wmd.validate();
-			
 			em.persist(wmd);
 			theId = wmd.getId();
 			utx.commit();
-			
-			
 		}
 		catch (Exception ex) {
 			utx.rollback();
