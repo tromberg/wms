@@ -13,6 +13,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import com.creaficiency.entity.WatermarkDoc;
 
@@ -21,6 +28,7 @@ import com.creaficiency.entity.WatermarkDoc;
  * @author timr
  *
  */
+@Path("/wms")
 public class WatermarkService {
 	private static Logger LOGGER = Logger.getLogger(WatermarkService.class.getName());	
 
@@ -32,9 +40,17 @@ public class WatermarkService {
 	@Inject
 	UserTransaction utx;
 
-	
-	public long submitDocForWatermark(WatermarkDoc wmd) throws Exception {
-		Long theId;
+	/**
+	 * 
+	 * @param Document to watermark
+	 * @return ticket id
+	 * @throws Exception
+	 */
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String submitDocForWatermark(WatermarkDoc wmd) throws Exception {
+		String theId;
 		
 		if (wmd == null) throw new NullPointerException();
 		wmd.validate();
@@ -45,7 +61,7 @@ public class WatermarkService {
 		
 		try {
 			em.persist(wmd);
-			theId = wmd.getId();
+			theId = wmd.getId().toString();
 			utx.commit();
 		}
 		catch (Exception ex) {
@@ -57,7 +73,7 @@ public class WatermarkService {
 		LOGGER.info("Doc " + theId + " submitted.");
 		JobOperator jobOperator = BatchRuntime.getJobOperator();
 		Properties props = new Properties();
-		props.setProperty(PROP_DOCID, theId.toString());
+		props.setProperty(PROP_DOCID, theId);
 		jobOperator.start(JOB_WMS, props);
 		
 		em.clear();
@@ -72,10 +88,14 @@ public class WatermarkService {
 	 * @throws Exception
 	 */
 	
-	public WatermarkDoc getWatermarkDocById(long id) throws Exception {
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{id}")
+	public WatermarkDoc getWatermarkDocById(@PathParam("id") String id) throws Exception {
+		long numId = Long.parseLong(id);
 		em = emf.createEntityManager();
 		
-		WatermarkDoc result = (WatermarkDoc) em.find(WatermarkDoc.class, id);
+		WatermarkDoc result = (WatermarkDoc) em.find(WatermarkDoc.class, numId);
 		
 		em.clear();
 		return result;

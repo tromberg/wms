@@ -30,6 +30,7 @@ public class WatermarkTask implements Batchlet {
 	
 	@Override
 	public String process() throws Exception {
+		Thread.sleep(600); // representing some long-running operation
 		wms.addWatermark(Long.parseLong(wmsDocId));
 		return "COMPLETED";
 	}
