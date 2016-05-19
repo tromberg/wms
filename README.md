@@ -6,9 +6,6 @@
 * default profile: arquillian-glassfish, alternative -Parquillian-wildfly (maven will install  wildfly)
 * mvn test
 
-limitations:
-* no REST interface (yet - as it was explicitly not required). still, WAR project was chosen to prepare for this
-* hence 'app-managed' entity manager and transactions, where in more complex apps one would rely on EJB
-* client is responsible for avoiding to inject WatermarkService into multithreaded contexts (e.g. @ApplicationScoped). This would be solved by EJB as well.
+
 
 
