@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -29,6 +30,7 @@ import com.creaficiency.entity.WatermarkDoc;
  *
  */
 @Path("/wms")
+@RequestScoped
 public class WatermarkService {
 	private static Logger LOGGER = Logger.getLogger(WatermarkService.class.getName());	
 
@@ -101,29 +103,5 @@ public class WatermarkService {
 		return result;
 	}
 	
-	public void addWatermark(long id) throws Exception {
-		em = emf.createEntityManager();
-		utx.begin();
-		em.joinTransaction();
-		try {
-			WatermarkDoc doc = em.find(WatermarkDoc.class, id);
-			if (doc == null) {
-				LOGGER.severe("Doc " + id + " not found for watermarking");
-				utx.rollback();
-				em.clear();
-				return;
-			}
-			doc.setWatermark(Integer.toString(doc.calcWatermarkCode()));
-			
-			LOGGER.info("Doc " + id +" watermark set to " + doc.getWatermark());
-			
-			utx.commit();
-			em.clear();
-		}
-		catch (Exception ex) {
-			utx.rollback();
-			em.clear();
-			throw ex;
-		}
-	}
+	
 }
