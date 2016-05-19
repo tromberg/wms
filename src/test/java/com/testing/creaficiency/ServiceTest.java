@@ -1,4 +1,4 @@
-package com.creaficiency;
+package com.testing.creaficiency;
 
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -88,8 +88,8 @@ public class ServiceTest extends TestCase {
     
     private String getWatermarkForDoc(WatermarkDoc doc) throws Exception {
     	
-        long docId = wms.submitDocForWatermark(doc);        
-    	Assert.assertTrue(docId > 0);
+        String docId = wms.submitDocForWatermark(doc);        
+    	Assert.assertTrue(Long.parseLong(docId) > 0);
     	
     	WatermarkDoc readDoc = wms.getWatermarkDocById(docId);
     	Assert.assertNotNull(readDoc);
