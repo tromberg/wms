@@ -60,8 +60,24 @@ public class ResourceTest extends TestCase {
         
         Response r = wms.request(MediaType.TEXT_PLAIN).post(Entity.json(doc));
         Assert.assertEquals(200, r.getStatus());
-        LOGGER.info("REST result: " + r.readEntity(String.class));
-        Thread.sleep(1000);
+        String ticketId = r.readEntity(String.class);
+        LOGGER.info("REST result: " + ticketId);
+        
+        wms = wms.path(ticketId);
+        
+        int k = 10;
+        WatermarkDoc readDoc;
+    	do {
+    		Thread.sleep(250);
+    		
+    		r = wms.request(MediaType.APPLICATION_JSON).get();
+    		Assert.assertEquals(200, r.getStatus());
+    		readDoc = r.readEntity(WatermarkDoc.class);
+    	} while (--k >= 0 && readDoc.getWatermark() == null);
+    	
+    	Assert.assertTrue("Timeout waiting for Watermark", k >= 0);
+    	
+    	
     }
 
 
